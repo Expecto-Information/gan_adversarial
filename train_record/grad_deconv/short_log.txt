@@ -1,0 +1,1 @@
+Best model achieved on epoch 1, with accuracy score = 0.9770143628120422

@@ -1,0 +1,1 @@
+Best model achieved on epoch 4, with accuracy score = 0.9614999890327454

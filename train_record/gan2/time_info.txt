@@ -1,0 +1,2 @@
+total time is 2.415238857269287 mins
+epoch 0: 2.415238857269287 mins

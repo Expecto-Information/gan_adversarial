@@ -1,0 +1,1 @@
+Best model achieved on epoch 9, with accuracy score = 0.5105000138282776
