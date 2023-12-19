@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 #custom
 from NoiseGen.AttackedClassifier import AttackedClassifier
 from utils.StatsMaker import StatisticsMaker
-from Evaluater import Evaluater
+from utils.Evaluater import Evaluater
 
 class GANTrainer:
     def __init__(

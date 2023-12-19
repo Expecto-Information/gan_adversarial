@@ -7,11 +7,11 @@ import os, random, argparse
 
 
 # custom
-from Classifier import ResNet18
+from Classifiers.ResNet18 import ResNet18
 from NoiseGen.Generator import *
 from GradPredModel import *
 from GradTrainer import GradTrainer
-from MakeDataset import MakeDataset
+from utils.MakeDataset import MakeDataset
 
 
 # reproducibility
@@ -45,10 +45,10 @@ print("random_seed :", random_seed)
 total_epochs = 55
 LR = 5e-2
 
-TEST_BATCH_SIZE = 4
-TRAIN_BATCH_SIZE = 4
+TEST_BATCH_SIZE = 20
+TRAIN_BATCH_SIZE = 20
 
-base_dir = '/home/stud_valery/gan_adversarial/data'
+base_dir = './data'
 
 train_dataset = MakeDataset(base_dir, 'training_set')
 test_dataset = MakeDataset(base_dir, 'test_set')
@@ -73,7 +73,7 @@ grad_generator = GeneratorVAE()
 attacker_opt = AdamW(grad_generator.parameters(), lr=LR, weight_decay = 0.01)
 
 classifier = ResNet18(num_classes=2)
-params = torch.load('/home/stud_valery/gan_adversarial/train_record/no_normalization/best_model',\
+params = torch.load('./train_record/resnet18/best_model',\
                      map_location='cuda:'+str(args.device))
 classifier.load_state_dict(params)
 

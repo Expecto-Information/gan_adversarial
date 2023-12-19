@@ -7,9 +7,9 @@ import os, random, argparse
 
 
 # custom
-from Classifier import ResNet18
+from Classifiers.ResNet18 import ResNet18
 from Trainer import Trainer
-from MakeDataset import MakeDataset
+from utils.MakeDataset import MakeDataset
 
 # reproducibility
 def initialization(seed = 0):   
@@ -28,9 +28,9 @@ parser.add_argument('-n', '--exp_name', type=str, default='no_name', help='name 
 parser.add_argument('-device', '--device', type = int, default=0, help='device number to use (if available)')
 parser.add_argument('-train_bs', '--train_bs', type = int, default=20, help='train batch size')
 parser.add_argument('-test_bs', '--test_bs', type = int, default=20, help='test batch size')
+parser.add_argument('-epochs', '--epochs', type = int, default=55, help='test batch size')
 
 args = parser.parse_args()
-
 
 
 #------------------Settings--------------------
@@ -39,21 +39,20 @@ random_seed=42
 initialization(seed=random_seed)
 print("random_seed :", random_seed)
 
-total_epochs = 55
-LR = 4e-4
+total_epochs = args.epochs
+LR = 4e-5
 
-TEST_BATCH_SIZE = 60
-TRAIN_BATCH_SIZE = 60
+TEST_BATCH_SIZE = 150
+TRAIN_BATCH_SIZE = 150
 
-base_dir = '/home/stud_valery/gan_adversarial/data'
-
+base_dir = './data'
 train_dataset = MakeDataset(base_dir, 'training_set')
 test_dataset = MakeDataset(base_dir, 'test_set')
 
 train_dataloader = DataLoader(dataset=train_dataset, batch_size=TRAIN_BATCH_SIZE,
-                              shuffle=True, num_workers=8)
+                              shuffle=True, num_workers=4)
 test_dataloader = DataLoader(dataset=test_dataset, batch_size=TEST_BATCH_SIZE,
-                              shuffle=False, num_workers=8)
+                              shuffle=False, num_workers=4)
 
 #============Experiment================
 torch.cuda.empty_cache()
@@ -66,15 +65,15 @@ print("Using device: ", device)
 
 model = ResNet18(num_classes=2)
 
-# params = torch.load('',\
-#                      map_location='cuda:'+str(args.device))
-# model.load_state_dict(params)
+params = torch.load('./train_record/resnet18/best_model',\
+                     map_location='cuda:'+str(args.device))
+model.load_state_dict(params)
 
 # print(args.device, type(args.device))
 optimizer = AdamW(model.parameters(), lr=LR, weight_decay = 0.01)
 
 trainer = Trainer(model, MODEL_NAME, train_dataloader, test_dataloader, optimizer, args.device)
-trainer.train(total_epochs)
+trainer.train(total_epochs, start_epoch=79)
 
 
 torch.cuda.empty_cache()

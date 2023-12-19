@@ -7,10 +7,10 @@ import os, random, argparse
 
 
 # custom
-from Classifier import ResNet18
+from Classifiers.ResNet18 import ResNet18
 from NoiseGen.Generator import *
 from NoiseGen.GANTrainer import GANTrainer
-from MakeDataset import MakeDataset
+from utils.MakeDataset import MakeDataset
 
 # reproducibility
 def initialization(seed = 0):   

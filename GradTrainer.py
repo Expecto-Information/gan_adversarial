@@ -4,9 +4,9 @@ from torch.nn import functional as nnf
 from torch.utils.data import DataLoader
 
 #custom
-from GradAttacked import GradAttacked
+from Classifiers.GenGradAttacked import GenGradAttacked
 from utils.StatsMaker import StatisticsMaker
-from Evaluater import Evaluater
+from utils.Evaluater import Evaluater
 
 
 class GradTrainer:
@@ -40,7 +40,7 @@ class GradTrainer:
 
         self.grad_generator = grad_generator.to(gpu_id)
         self.classifier = classifier.to(gpu_id)
-        self.attacked_classifier = GradAttacked(self.grad_generator, self.classifier)
+        self.attacked_classifier = GenGradAttacked(self.grad_generator, self.classifier)
         
         self.evaluater = Evaluater(self.attacked_classifier, self.test_dataloader, self.gpu_id)
 

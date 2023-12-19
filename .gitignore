@@ -2,6 +2,7 @@
 
 # Data-related stuff
 # data
+*.jpg
 *.zip
 *best_model
 *.pth

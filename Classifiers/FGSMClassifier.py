@@ -1,17 +1,17 @@
-
 import torch.nn as nn
 
 import matplotlib.pyplot as plt
 import numpy as np
+from torch.nn import functional as nnf
+import torch
 
 
-class GradAttacked(nn.Module):
-    def __init__(self, grad_generator, classifier, eps=0.070):
-        super(GradAttacked, self).__init__()
+class FGSMClassifier(nn.Module):
+    def __init__(self, classifier, device = 0, eps = 0.007):
+        super(FGSMClassifier, self).__init__()
 
-        self.grad_generator = grad_generator
+        self.device = device
         self.classifier = classifier
-
         self.eps = eps
 
     def process_tensor_img(self, img):
@@ -38,12 +38,22 @@ class GradAttacked(nn.Module):
         plt.show()
 
     def forward(self, images, draw_mode=False):
+        self.classifier.train()
+        torch.set_grad_enabled(True)
+        images.requires_grad = True
+        preds = self.classifier(images)
+        self.classifier.zero_grad()
 
-        gradients = self.grad_generator(images)
-        noised_images = images + self.eps*gradients.sign()
+        cost = nnf.cross_entropy(preds.to(self.device), preds.argmax(dim=1).to(self.device))
+        cost.backward()
+
+        noised_images = images + self.eps*images.grad.sign()
+
         if draw_mode==True:
-            self.draw_images(images.squeeze(0), noised_images.squeeze(0))
+            self.draw_images(images[0], noised_images[0])
 
         preds = self.classifier(noised_images)
-
-        return preds
+        if self.training:
+            return preds
+        else:
+            return preds.argmax(dim=1)

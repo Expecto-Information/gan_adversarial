@@ -13,9 +13,11 @@ import numpy as np
 
 
 class MakeDataset(Dataset):
-    def __init__(self, base_dir, split, raw_image=False,
+    def __init__(self, base_dir, split, on_the_fly = True, raw_image=False,
                 unlabeled_mode=False, filename_mode=False, limit=-1) :  # split = 'train_set' or 'test_set'
         super(MakeDataset, self).__init__()
+
+        self.on_the_fly = on_the_fly
 
         self.limit = limit
         self.raw_image=raw_image
@@ -43,25 +45,35 @@ class MakeDataset(Dataset):
 
         
     def process_dir(self, filedir, label):
-        self.filenames = list(set(os.listdir(filedir)))[:200]
+        self.filenames = list(set(os.listdir(filedir)))
         if self.limit != -1:
             self.filenames = self.filenames[:self.limit]
-
         for file_name in tqdm(self.filenames, desc = f'get dataset from {filedir}...'):
-            self.path_list.append(self.data_dir+file_name)
-            self.process_image(filedir+file_name)
-            if self.unlabeled_mode==False:
-                self.targets.append(label)
+            self.process_file(filedir +file_name, label)
+
+    def process_file(self, path, label):
+        if path.endswith('jpg'):
+            self.path_list.append(path)
+        else:
+            return -1
+
+        if self.on_the_fly == False:
+            self.process_image(path)
+
+        if self.unlabeled_mode==False:
+            self.targets.append(label)
 
     def __len__(self):
-        return len(self.images)
+        return len(self.path_list)
     
     def process_image(self, image_path):
-        if image_path.endswith('jpg'):
-            image = Image.open(image_path)
-            if self.raw_image == False:
-                image = self.preprocess(image)
+        image = Image.open(image_path)
+        if self.raw_image == False:
+            image = self.preprocess(image)
+        if self.on_the_fly == False:
             self.images.append(image)
+        return image
+        
     
     def show_tensor_image(self, img_tensor):
         img_array = img_tensor.numpy()
@@ -70,12 +82,13 @@ class MakeDataset(Dataset):
         plt.imshow(img_array)
         plt.show()
 
-    def __getitem__(self, item: int) :
+    def __getitem__(self, item: int):
 
-        #pre-calculated mode
+        #pre-calculated mode or on-the-fly
+        path = self.path_list[item]
+        image = self.process_image(path) if self.on_the_fly == True else self.images[item]
 
         if self.unlabeled_mode == False:
-            return self.images[item], self.targets[item]
+            return image, self.targets[item]
         else:
-            return self.images[item], self.path_list[item]
-            # return self.images[item], self.file_names[item][:-4]
+            return image, self.path_list[item]

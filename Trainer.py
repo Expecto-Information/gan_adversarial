@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 #custom
 from utils.StatsMaker import StatisticsMaker
-from Evaluater import Evaluater
+from utils.Evaluater import Evaluater
 
 class Trainer:
     def __init__(
@@ -16,8 +16,7 @@ class Trainer:
         optimizer: torch.optim.Optimizer,
         gpu_id: int,
         accum_iter: int = 1,
-        without_eval: bool = False,
-        gan_mode: bool = False
+        without_eval: bool = False
     ) -> None:
         self.gpu_id = gpu_id
         self.without_eval = without_eval

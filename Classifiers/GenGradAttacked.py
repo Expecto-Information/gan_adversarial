@@ -1,16 +1,18 @@
+
 import torch.nn as nn
 
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.nn import functional as nnf
-import torch
 
 
-class FGSMClassifier(nn.Module):
-    def __init__(self, classifier):
-        super(FGSMClassifier, self).__init__()
+class GenGradAttacked(nn.Module):
+    def __init__(self, grad_generator, classifier, eps=0.070):
+        super(GenGradAttacked, self).__init__()
 
+        self.grad_generator = grad_generator
         self.classifier = classifier
+
+        self.eps = eps
 
     def process_tensor_img(self, img):
         numpy_img=img.detach().cpu().numpy()
@@ -34,18 +36,14 @@ class FGSMClassifier(nn.Module):
         plt.title('Noised image')
 
         plt.show()
+    
 
     def forward(self, images, draw_mode=False):
-        images.requires_grad = True
-        preds = self.classifier(images)
-        self.classifier.zero_grad()
-        cost = nnf.cross_entropy(preds, preds.argmax(dim=1))
-        cost.backward()
 
-        noised_images = images + 0.007*images.grad.sign()
-
+        gradients = self.grad_generator(images)
+        noised_images = images + self.eps*gradients.sign()
         if draw_mode==True:
-            self.draw_images(images[0], noised_images[0])
+            self.draw_images(images.squeeze(0), noised_images.squeeze(0))
 
         preds = self.classifier(noised_images)
 

@@ -1,0 +1,1 @@
+Best model achieved on epoch 7, with accuracy score = 0.9126297831535339

@@ -1,0 +1,1 @@
+Best model achieved on epoch 82, with accuracy score = 0.9288185834884644
